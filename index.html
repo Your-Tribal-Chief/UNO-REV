@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNO - Play Against AI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Game Header -->
+        <header class="game-header">
+            <div class="logo">
+                <h1><span class="uno-u">U</span><span class="uno-n">N</span><span class="uno-o">O</span></h1>
+            </div>
+            <div class="game-info">
+                <div class="score">
+                    <span class="player-score">You: <span id="player-score">0</span></span>
+                    <span class="ai-score">AI: <span id="ai-score">0</span></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Game Board -->
+        <main class="game-board">
+            <!-- AI Hand (hidden cards) -->
+            <section class="ai-section">
+                <div class="player-info">
+                    <i class="fas fa-brain"></i>
+                    <span>SmythOS AI</span>
+                    <span class="card-count" id="ai-card-count">7 cards</span>
+                    <span class="ai-status">🧠 Analyzing...</span>
+                </div>
+                <div class="ai-hand" id="ai-hand">
+                    <!-- AI cards will be generated here -->
+                </div>
+            </section>
+
+            <!-- Center Play Area -->
+            <section class="center-area">
+                <div class="deck-area">
+                    <div class="draw-pile" id="draw-pile">
+                        <div class="card card-back"></div>
+                        <span class="pile-count" id="draw-count">108</span>
+                    </div>
+                    <div class="discard-pile" id="discard-pile">
+                        <!-- Current card will be shown here -->
+                    </div>
+                    <div class="draw-stack" id="draw-stack" style="display: none;">
+                        <div class="stack-indicator">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span id="stack-count">0</span>
+                            <span>Cards to Draw</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Game Controls -->
+                <div class="game-controls">
+                    <button id="draw-card-btn" class="action-btn draw-btn">
+                        <i class="fas fa-plus"></i>
+                        Draw Card
+                    </button>
+                    <button id="pass-turn-btn" class="action-btn pass-btn hidden">
+                        <i class="fas fa-forward"></i>
+                        Pass Turn
+                    </button>
+                    <button id="uno-btn" class="action-btn uno-btn" disabled>
+                        <i class="fas fa-exclamation"></i>
+                        UNO!
+                    </button>
+                </div>
+
+                <!-- Color Chooser Modal -->
+                <div id="color-chooser" class="color-chooser hidden">
+                    <h3>Choose a Color</h3>
+                    <div class="color-options">
+                        <button class="color-btn red" data-color="red"></button>
+                        <button class="color-btn yellow" data-color="yellow"></button>
+                        <button class="color-btn green" data-color="green"></button>
+                        <button class="color-btn blue" data-color="blue"></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Player Hand -->
+            <section class="player-section">
+                <div class="player-info">
+                    <i class="fas fa-user"></i>
+                    <span>You</span>
+                    <span class="card-count" id="player-card-count">7 cards</span>
+                </div>
+                <div class="player-hand" id="player-hand">
+                    <!-- Player cards will be generated here -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Game Messages -->
+        <div id="game-message" class="game-message hidden">
+            <div class="message-content">
+                <p id="message-text"></p>
+                <button id="message-close" class="message-close">×</button>
+            </div>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="start-screen">
+            <div class="start-content">
+                <h1 class="start-title">
+                    <span class="uno-u">U</span><span class="uno-n">N</span><span class="uno-o">O</span>
+                </h1>
+                <p class="start-subtitle">🧠 Powered by SmythOS AI</p>
+                <p class="ai-description">Experience advanced AI gameplay with adaptive strategies and real-time analysis</p>
+                <div class="difficulty-selection">
+                    <h3>Choose Difficulty:</h3>
+                    <div class="difficulty-buttons">
+                        <button class="difficulty-btn" data-difficulty="easy">
+                            <i class="fas fa-smile"></i>
+                            Easy
+                        </button>
+                        <button class="difficulty-btn active" data-difficulty="medium">
+                            <i class="fas fa-meh"></i>
+                            Medium
+                        </button>
+                        <button class="difficulty-btn" data-difficulty="hard">
+                            <i class="fas fa-fire"></i>
+                            Hard
+                        </button>
+                    </div>
+                </div>
+                <button id="start-game-btn" class="start-btn">
+                    <i class="fas fa-play"></i>
+                    Start Game
+                </button>
+            </div>
+        </div>
+
+        <!-- Win Screen -->
+        <div id="win-screen" class="win-screen hidden">
+            <div class="win-content">
+                <div class="win-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <h2 id="win-title">You Win!</h2>
+                <p id="win-message">Congratulations on your victory!</p>
+                <div class="win-actions">
+                    <button id="play-again-btn" class="start-btn">
+                        <i class="fas fa-redo"></i>
+                        Play Again
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Instructions Button -->
+        <div class="help-btn" id="help-btn">
+            <i class="fas fa-question-circle"></i>
+        </div>
+
+        <!-- Instructions Modal -->
+        <div id="instructions-modal" class="instructions-modal hidden">
+            <div class="instructions-content">
+                <div class="instructions-header">
+                    <h2>How to Play UNO</h2>
+                    <button id="close-instructions" class="close-btn">×</button>
+                </div>
+                <div class="instructions-body">
+                    <h3>🎯 Objective</h3>
+                    <p>Be the first to play all your cards!</p>
+                    
+                    <h3>🎮 How to Play</h3>
+                    <ul>
+                        <li>Match cards by <strong>color</strong> or <strong>number</strong></li>
+                        <li>Click a card to play it (if valid)</li>
+                        <li>Draw a card if you can't play</li>
+                        <li>Call "UNO!" when you have one card left</li>
+                    </ul>
+                    
+                    <h3>🃏 Special Cards</h3>
+                    <div class="special-cards">
+                        <div class="special-card">
+                            <span class="card-icon">⊘</span>
+                            <div>
+                                <strong>Skip</strong><br>
+                                Skip next player's turn
+                            </div>
+                        </div>
+                        <div class="special-card">
+                            <span class="card-icon">⟲</span>
+                            <div>
+                                <strong>Reverse</strong><br>
+                                Change direction (acts like Skip in 2-player)
+                            </div>
+                        </div>
+                        <div class="special-card">
+                            <span class="card-icon">+2</span>
+                            <div>
+                                <strong>Draw 2</strong><br>
+                                Next player draws 2 cards
+                            </div>
+                        </div>
+                        <div class="special-card">
+                            <span class="card-icon wild">W</span>
+                            <div>
+                                <strong>Wild</strong><br>
+                                Choose any color
+                            </div>
+                        </div>
+                        <div class="special-card">
+                            <span class="card-icon wild">+4</span>
+                            <div>
+                                <strong>Wild +4</strong><br>
+                                Choose color, next player draws 4
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>⚠️ Important Rules</h3>
+                    <ul>
+                        <li>Call "UNO!" when you have one card (you have 3 seconds!)</li>
+                        <li>Forget to call UNO = draw 2 penalty cards</li>
+                        <li>You can only play one card per turn</li>
+                        <li>Wild Draw 4 can only be played when you have no other color match</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
