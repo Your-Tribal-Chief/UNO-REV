@@ -767,6 +767,90 @@ body {
     }
 }
 
+/* Touch-friendly enhancements */
+.analytics-panel {
+    touch-action: none; /* Prevent default touch behaviors */
+}
+
+.drag-handle {
+    min-height: 40px; /* Larger touch target */
+}
+
+.control-btn {
+    min-width: 32px;
+    min-height: 32px;
+}
+
+/* Visual feedback for interactions */
+.section-header {
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.section-header:active {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+/* Smooth animations */
+.analytics-panel {
+    will-change: transform;
+}
+
+.section-content {
+    will-change: max-height, padding;
+}
+
+/* Dragging cursor feedback */
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+/* Prevent text selection during drag */
+.analytics-panel.dragging * {
+    user-select: none;
+    pointer-events: none;
+}
+
+.analytics-panel.dragging .control-btn {
+    pointer-events: auto; /* Keep buttons clickable */
+}
+
+/* Accessibility improvements */
+.control-btn:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+.section-header:focus {
+    outline: 2px solid #667eea;
+    outline-offset: -2px;
+}
+
+/* Panel position constraints */
+.analytics-panel {
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+
+/* Scrollbar styling for webkit browsers */
+.analytics-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.analytics-panel::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+}
+
+.analytics-panel::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.3);
+    border-radius: 3px;
+}
+
+.analytics-panel::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 126, 234, 0.5);
+}
+
 /* Utility Classes */
 .hidden {
     display: none !important;
@@ -936,21 +1020,328 @@ body {
     background: linear-gradient(45deg, #e53e3e 25%, #ffd700 25%, #ffd700 50%, #38a169 50%, #38a169 75%, #3182ce 75%);
 }
 
-/* SmythOS Analytics Panel */
+/* SmythOS Analytics Panel - Draggable & Collapsible */
 .analytics-panel {
     position: fixed;
     top: 20px;
-    right: 80px; /* Moved to avoid overlap with help button */
+    right: 80px;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(15px);
     border-radius: 15px;
-    padding: 1rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     min-width: 280px;
-    z-index: 999; /* Lower than help button to prevent overlap */
+    max-width: 320px;
+    z-index: 999;
     transition: all 0.3s ease;
-    color: #333; /* Dark text for better contrast */
+    color: #333;
+    cursor: move;
+    user-select: none;
+}
+
+.analytics-panel.dragging {
+    transform: rotate(2deg);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+}
+
+.analytics-panel.collapsed {
+    min-width: 60px;
+    width: 60px;
+    padding: 0.5rem;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.analytics-panel.collapsed .analytics-content {
+    display: none;
+}
+
+.analytics-panel.collapsed .analytics-header {
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+    width: 100%;
+}
+
+.analytics-panel.collapsed .drag-handle {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    width: 100%;
+    min-height: 30px;
+}
+
+.analytics-panel.collapsed .drag-handle h3 {
+    display: none;
+}
+
+.analytics-panel.collapsed .panel-controls {
+    margin-top: 0.5rem;
+}
+
+.analytics-panel.collapsed .collapsed-title {
+    display: block !important;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #667eea;
+    margin: 0.5rem 0;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.analytics-panel.collapsed .collapsed-title div {
+    margin: 2px 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Make collapsed title interactive */
+.collapsed-title {
+    cursor: pointer !important;
+    transition: all 0.2s ease;
+    padding: 0.3rem 0;
+    border-radius: 6px;
+}
+
+.collapsed-title:hover {
+    background: rgba(102, 126, 234, 0.1);
+    transform: scale(1.02);
+}
+
+.analytics-panel.collapsed .collapsed-title:hover div {
+    color: #5a67d8;
+}
+
+/* Ensure buttons are always visible and clickable in collapsed mode */
+.analytics-panel.collapsed .control-btn {
+    position: relative;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    border-radius: 6px;
+}
+
+.analytics-panel.collapsed .control-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    border-color: rgba(102, 126, 234, 0.4);
+    transform: scale(1.05);
+}
+
+/* Make collapsed panel more interactive */
+.analytics-panel.collapsed:hover {
+    transform: scale(1.02);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Better drag handle in collapsed mode */
+.analytics-panel.collapsed .drag-handle::before {
+    content: "⋮";
+    font-size: 1.2rem;
+    color: #999;
+    margin-bottom: 0.2rem;
+}
+
+/* Touch-friendly enhancements */
+.analytics-panel {
+    touch-action: none; /* Prevent default touch behaviors */
+}
+
+.drag-handle {
+    min-height: 40px; /* Larger touch target */
+}
+
+.control-btn {
+    min-width: 32px;
+    min-height: 32px;
+}
+
+/* Visual feedback for interactions */
+.section-header {
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.section-header:active {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+/* Smooth animations */
+.analytics-panel {
+    will-change: transform;
+}
+
+.section-content {
+    will-change: max-height, padding;
+}
+
+/* Dragging cursor feedback */
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+/* Prevent text selection during drag */
+.analytics-panel.dragging * {
+    user-select: none;
+    pointer-events: none;
+}
+
+.analytics-panel.dragging .control-btn {
+    pointer-events: auto; /* Keep buttons clickable */
+}
+
+/* Accessibility improvements */
+.control-btn:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+.section-header:focus {
+    outline: 2px solid #667eea;
+    outline-offset: -2px;
+}
+
+/* Panel position constraints */
+.analytics-panel {
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+
+/* Scrollbar styling for webkit browsers */
+.analytics-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.analytics-panel::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+}
+
+.analytics-panel::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.3);
+    border-radius: 3px;
+}
+
+.analytics-panel::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 126, 234, 0.5);
+}
+
+/* Panel Header with Drag Handle */
+.analytics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    cursor: move;
+}
+
+.analytics-header.collapsed-mode {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+    justify-content: center;
+}
+
+.drag-handle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    cursor: move;
+}
+
+.drag-handle::before {
+    content: "⋮⋮";
+    color: #999;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.panel-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.control-btn {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.2rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+/* Collapsed state title */
+.collapsed-title {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #667eea;
+    margin: 0;
+    text-align: center;
+}
+
+/* Fold sections */
+.analytics-section {
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.section-header {
+    background: rgba(102, 126, 234, 0.1);
+    padding: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #667eea;
+}
+
+.section-header:hover {
+    background: rgba(102, 126, 234, 0.15);
+}
+
+.section-content {
+    background: rgba(0, 0, 0, 0.02);
+    padding: 0.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    overflow: hidden;
+}
+
+.section-content.collapsed {
+    max-height: 0;
+    padding: 0 0.5rem;
+}
+
+.fold-icon {
+    transition: transform 0.3s ease;
+}
+
+.fold-icon.rotated {
+    transform: rotate(180deg);
 }
 
 .analytics-panel.smythos-connected {
@@ -1110,11 +1501,14 @@ body {
 /* Responsive Design for Analytics Panel */
 @media (max-width: 768px) {
     .analytics-panel {
-        right: 10px;
-        top: 80px; /* Below help button on mobile */
         min-width: 250px;
         max-width: calc(100vw - 20px);
         font-size: 0.9rem;
+    }
+    
+    .analytics-panel.collapsed {
+        width: 50px;
+        min-width: 50px;
     }
     
     .metric {
@@ -1126,20 +1520,32 @@ body {
         font-size: 0.8rem;
     }
     
-    .analytics-panel h3 {
-        font-size: 1rem;
+    .section-header {
+        font-size: 0.8rem;
     }
 }
 
 @media (max-width: 480px) {
     .analytics-panel {
-        right: 5px;
-        top: 70px;
         min-width: 220px;
-        padding: 0.8rem;
+        max-width: calc(100vw - 10px);
+    }
+    
+    .analytics-panel.collapsed {
+        width: 45px;
+        min-width: 45px;
     }
     
     .metric-label, .metric-value {
         font-size: 0.75rem;
+    }
+    
+    .section-header {
+        font-size: 0.75rem;
+        padding: 0.4rem;
+    }
+    
+    .drag-handle::before {
+        font-size: 1rem;
     }
 }

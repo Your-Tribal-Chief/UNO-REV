@@ -1370,45 +1370,86 @@ class UNOGame {
     }
     
     initializeAnalyticsDashboard() {
-        // Create analytics display elements
+        // Create analytics display elements with draggable, collapsible structure
         const analyticsHTML = `
             <div class="analytics-panel" id="analytics-panel">
-                <h3><i class="fas fa-brain"></i> SmythOS AI Analytics</h3>
-                <div class="analytics-content">
-                    <div class="metric">
-                        <span class="metric-label">Win Probability:</span>
-                        <span class="metric-value" id="win-probability">--</span>
+                <div class="analytics-header" id="analytics-header">
+                    <div class="drag-handle">
+                        <h3><i class="fas fa-brain"></i> SmythOS AI</h3>
                     </div>
-                    <div class="metric">
-                        <span class="metric-label">AI Personality:</span>
-                        <span class="metric-value" id="ai-personality">Balanced</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Confidence Level:</span>
-                        <span class="metric-value" id="confidence-level">--</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Performance:</span>
-                        <span class="metric-value" id="ai-performance">--</span>
-                    </div>
-                    <div class="toggle-analytics">
-                        <button id="toggle-analytics-btn" class="btn-secondary">
-                            <i class="fas fa-chart-line"></i> Toggle Details
+                    <div class="panel-controls">
+                        <button class="control-btn" id="collapse-btn" title="Collapse Panel">
+                            <i class="fas fa-minus"></i>
                         </button>
                     </div>
                 </div>
-                <div class="analytics-details" id="analytics-details" style="display: none;">
-                    <div class="detail-metric">
-                        <span>Total Predictions:</span>
-                        <span id="total-predictions">0</span>
+                <div class="collapsed-title" style="display: none;">
+                    <div>S</div>
+                    <div>M</div>
+                    <div>Y</div>
+                    <div>T</div>
+                    <div>H</div>
+                    <div>O</div>
+                    <div>S</div>
+                </div>
+                
+                <div class="analytics-content">
+                    <!-- Status Section -->
+                    <div class="analytics-section">
+                        <div class="section-header" data-section="status">
+                            <span><i class="fas fa-circle-info"></i> Status</span>
+                            <i class="fas fa-chevron-up fold-icon"></i>
+                        </div>
+                        <div class="section-content" id="status-content">
+                            <div class="metric">
+                                <span class="metric-label">AI Personality:</span>
+                                <span class="metric-value" id="ai-personality">Balanced</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Performance:</span>
+                                <span class="metric-value" id="ai-performance">--</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="detail-metric">
-                        <span>Adaptations:</span>
-                        <span id="total-adaptations">0</span>
+                    
+                    <!-- Analysis Section -->
+                    <div class="analytics-section">
+                        <div class="section-header" data-section="analysis">
+                            <span><i class="fas fa-chart-line"></i> Analysis</span>
+                            <i class="fas fa-chevron-up fold-icon"></i>
+                        </div>
+                        <div class="section-content" id="analysis-content">
+                            <div class="metric">
+                                <span class="metric-label">Win Probability:</span>
+                                <span class="metric-value" id="win-probability">--</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Confidence Level:</span>
+                                <span class="metric-value" id="confidence-level">--</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="detail-metric">
-                        <span>Session ID:</span>
-                        <span id="session-id" title="SmythOS Session Identifier">--</span>
+                    
+                    <!-- Details Section -->
+                    <div class="analytics-section">
+                        <div class="section-header" data-section="details">
+                            <span><i class="fas fa-cog"></i> Details</span>
+                            <i class="fas fa-chevron-down fold-icon rotated"></i>
+                        </div>
+                        <div class="section-content collapsed" id="details-content">
+                            <div class="metric">
+                                <span class="metric-label">Total Predictions:</span>
+                                <span class="metric-value" id="total-predictions">0</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Adaptations:</span>
+                                <span class="metric-value" id="total-adaptations">0</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Session ID:</span>
+                                <span class="metric-value" id="session-id" title="SmythOS Session Identifier">--</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1420,11 +1461,8 @@ class UNOGame {
             gameBoard.insertAdjacentHTML('beforeend', analyticsHTML);
         }
         
-        // Bind analytics events
-        const toggleBtn = document.getElementById('toggle-analytics-btn');
-        if (toggleBtn) {
-            toggleBtn.addEventListener('click', () => this.toggleAnalyticsDetails());
-        }
+        // Initialize draggable and collapsible functionality
+        this.setupAnalyticsInteractions();
     }
     
     updateAnalyticsDisplay(analysis) {
@@ -1494,18 +1532,7 @@ class UNOGame {
         }
     }
     
-    toggleAnalyticsDetails() {
-        const details = document.getElementById('analytics-details');
-        const btn = document.getElementById('toggle-analytics-btn');
-        
-        if (details && btn) {
-            const isHidden = details.style.display === 'none';
-            details.style.display = isHidden ? 'block' : 'none';
-            btn.innerHTML = isHidden ? 
-                '<i class="fas fa-chart-line"></i> Hide Details' : 
-                '<i class="fas fa-chart-line"></i> Toggle Details';
-        }
-    }
+
     
     async endGame(winner, points) {
         console.log('🏁 Game ending, winner:', winner, 'Points:', points);
@@ -1763,6 +1790,152 @@ class UNOGame {
             playerSection?.classList.remove('current-turn');
             aiSection?.classList.add('current-turn');
         }
+    }
+
+    setupAnalyticsInteractions() {
+        const panel = document.getElementById('analytics-panel');
+        const header = document.getElementById('analytics-header');
+        const collapseBtn = document.getElementById('collapse-btn');
+        
+        if (!panel || !header) return;
+        
+        // Dragging functionality
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+        
+        function dragStart(e) {
+            const clientX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
+            
+            initialX = clientX - xOffset;
+            initialY = clientY - yOffset;
+            
+            if (e.target === header || header.contains(e.target)) {
+                isDragging = true;
+                panel.classList.add('dragging');
+            }
+        }
+        
+        function dragEnd(e) {
+            initialX = currentX;
+            initialY = currentY;
+            isDragging = false;
+            panel.classList.remove('dragging');
+        }
+        
+        function drag(e) {
+            if (isDragging) {
+                e.preventDefault();
+                
+                const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
+                
+                currentX = clientX - initialX;
+                currentY = clientY - initialY;
+                
+                xOffset = currentX;
+                yOffset = currentY;
+                
+                // Keep panel within viewport bounds
+                const rect = panel.getBoundingClientRect();
+                const maxX = window.innerWidth - rect.width;
+                const maxY = window.innerHeight - rect.height;
+                
+                currentX = Math.min(Math.max(0, currentX), maxX);
+                currentY = Math.min(Math.max(0, currentY), maxY);
+                
+                panel.style.transform = `translate(${currentX}px, ${currentY}px)`;
+            }
+        }
+        
+        // Mouse events
+        header.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+        
+        // Touch events for mobile
+        header.addEventListener('touchstart', dragStart);
+        document.addEventListener('touchmove', drag);
+        document.addEventListener('touchend', dragEnd);
+        
+        // Collapse/Expand functionality
+        function toggleCollapse() {
+            panel.classList.toggle('collapsed');
+            const icon = collapseBtn.querySelector('i');
+            const collapsedTitle = panel.querySelector('.collapsed-title');
+            const analyticsContent = panel.querySelector('.analytics-content');
+            
+            if (panel.classList.contains('collapsed')) {
+                icon.className = 'fas fa-plus';
+                collapsedTitle.style.display = 'block';
+                analyticsContent.style.display = 'none';
+                collapseBtn.title = 'Expand Panel';
+            } else {
+                icon.className = 'fas fa-minus';
+                collapsedTitle.style.display = 'none';
+                analyticsContent.style.display = 'block';
+                collapseBtn.title = 'Collapse Panel';
+            }
+        }
+        
+        if (collapseBtn) {
+            collapseBtn.addEventListener('click', toggleCollapse);
+        }
+        
+        // Also allow clicking on collapsed title to expand
+        const collapsedTitle = panel.querySelector('.collapsed-title');
+        if (collapsedTitle) {
+            collapsedTitle.addEventListener('click', (e) => {
+                if (panel.classList.contains('collapsed')) {
+                    e.stopPropagation(); // Prevent drag from starting
+                    toggleCollapse();
+                }
+            });
+            collapsedTitle.style.cursor = 'pointer';
+        }
+        
+        // Section folding functionality
+        const sectionHeaders = panel.querySelectorAll('.section-header');
+        sectionHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                const section = header.getAttribute('data-section');
+                const content = panel.querySelector(`#${section}-content`);
+                const icon = header.querySelector('.fold-icon');
+                
+                if (content) {
+                    content.classList.toggle('collapsed');
+                    icon.classList.toggle('rotated');
+                    
+                    if (content.classList.contains('collapsed')) {
+                        icon.className = 'fas fa-chevron-down fold-icon rotated';
+                    } else {
+                        icon.className = 'fas fa-chevron-up fold-icon';
+                    }
+                }
+            });
+        });
+        
+        // Double-tap to reset position on mobile
+        let tapCount = 0;
+        header.addEventListener('touchend', (e) => {
+            tapCount++;
+            setTimeout(() => {
+                if (tapCount === 2) {
+                    // Reset to default position
+                    panel.style.transform = 'translate(0px, 0px)';
+                    xOffset = 0;
+                    yOffset = 0;
+                    currentX = 0;
+                    currentY = 0;
+                }
+                tapCount = 0;
+            }, 300);
+        });
     }
 }
 
