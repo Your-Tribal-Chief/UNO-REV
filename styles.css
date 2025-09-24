@@ -940,7 +940,7 @@ body {
 .analytics-panel {
     position: fixed;
     top: 20px;
-    right: 20px;
+    right: 80px; /* Moved to avoid overlap with help button */
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(15px);
     border-radius: 15px;
@@ -948,74 +948,90 @@ body {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     min-width: 280px;
-    z-index: 1000;
+    z-index: 999; /* Lower than help button to prevent overlap */
     transition: all 0.3s ease;
+    color: #333; /* Dark text for better contrast */
+}
+
+.analytics-panel.smythos-connected {
+    border: 2px solid #2ed573;
+    box-shadow: 0 0 20px rgba(46, 213, 115, 0.2);
+}
+
+.analytics-panel.smythos-connected::before {
+    content: "🚀 SmythOS Connected";
+    position: absolute;
+    top: -8px;
+    right: 10px;
+    background: #2ed573;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+.analytics-panel.fallback-mode {
+    border: 2px solid #ff9500;
+    box-shadow: 0 0 20px rgba(255, 149, 0, 0.2);
+}
+
+.analytics-panel.fallback-mode::before {
+    content: "⚠️ Fallback Mode";
+    position: absolute;
+    top: -8px;
+    right: 10px;
+    background: #ff9500;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: bold;
 }
 
 .analytics-panel.high-confidence {
-    border-color: #38a169;
-    box-shadow: 0 8px 32px rgba(56, 161, 105, 0.2);
+    animation: smythosGlow 2s ease-in-out;
 }
 
-.analytics-panel h3 {
-    margin: 0 0 1rem 0;
-    color: #2d3748;
-    font-size: 1rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+@keyframes smythosGlow {
+    0% { box-shadow: 0 0 20px rgba(46, 213, 115, 0.2); }
+    50% { box-shadow: 0 0 30px rgba(46, 213, 115, 0.6); }
+    100% { box-shadow: 0 0 20px rgba(46, 213, 115, 0.2); }
 }
 
-.analytics-panel h3 i {
-    color: #3182ce;
-}
-
+/* Analytics Panel Content Styling */
 .analytics-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+    color: #333;
 }
 
 .metric {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin: 0.5rem 0;
     padding: 0.5rem;
-    background: rgba(0, 0, 0, 0.03);
+    background: rgba(0, 0, 0, 0.05);
     border-radius: 8px;
-    font-size: 0.9rem;
+    transition: background 0.2s ease;
+}
+
+.metric:hover {
+    background: rgba(0, 0, 0, 0.08);
 }
 
 .metric-label {
-    color: #4a5568;
-    font-weight: 500;
+    font-weight: 600;
+    color: #444;
+    font-size: 0.9rem;
 }
 
 .metric-value {
-    color: #2d3748;
-    font-weight: 600;
-}
-
-.toggle-analytics {
-    margin-top: 0.5rem;
-}
-
-.btn-secondary {
-    background: rgba(49, 130, 206, 0.1);
-    color: #3182ce;
-    border: 1px solid rgba(49, 130, 206, 0.2);
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    width: 100%;
-}
-
-.btn-secondary:hover {
-    background: rgba(49, 130, 206, 0.15);
-    border-color: rgba(49, 130, 206, 0.3);
+    font-weight: bold;
+    color: #222;
+    font-size: 0.9rem;
+    padding: 2px 6px;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 4px;
 }
 
 .analytics-details {
@@ -1028,56 +1044,102 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 0.5rem 0;
-    font-size: 0.85rem;
-    color: #4a5568;
+    margin: 0.3rem 0;
+    font-size: 0.8rem;
+    color: #555;
+}
+
+.detail-metric span:first-child {
+    font-weight: 500;
 }
 
 .detail-metric span:last-child {
-    font-weight: 600;
-    color: #2d3748;
+    font-weight: bold;
+    color: #333;
 }
 
-#session-id {
-    font-family: monospace;
-    font-size: 0.75rem;
-    cursor: help;
+.toggle-analytics {
+    margin-top: 1rem;
+    text-align: center;
 }
 
-/* Mobile responsiveness for analytics */
+#toggle-analytics-btn {
+    background: rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    color: #667eea;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* SmythOS Branding */
+.analytics-panel h3 {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.analytics-panel h3 i {
+    color: #667eea !important;
+    -webkit-text-fill-color: #667eea !important;
+    background: none !important;
+}
+
+.metric-value[title*="SmythOS"] {
+    font-weight: bold;
+    background: rgba(46, 213, 115, 0.15) !important;
+    color: #2ed573 !important;
+    text-shadow: none;
+}
+
+.metric-value[title*="fallback"] {
+    font-style: italic;
+    opacity: 0.8;
+    background: rgba(255, 149, 0, 0.15) !important;
+    color: #ff9500 !important;
+}
+
+/* Responsive Design for Analytics Panel */
 @media (max-width: 768px) {
     .analytics-panel {
-        position: relative;
-        top: auto;
-        right: auto;
-        margin: 1rem;
-        width: calc(100% - 2rem);
-        min-width: unset;
+        right: 10px;
+        top: 80px; /* Below help button on mobile */
+        min-width: 250px;
+        max-width: calc(100vw - 20px);
+        font-size: 0.9rem;
+    }
+    
+    .metric {
+        margin: 0.3rem 0;
+        padding: 0.4rem;
+    }
+    
+    .metric-label, .metric-value {
+        font-size: 0.8rem;
+    }
+    
+    .analytics-panel h3 {
+        font-size: 1rem;
     }
 }
 
-/* Animation for analytics updates */
-.metric-value {
-    transition: color 0.3s ease;
-}
-
-.high-confidence .metric-value {
-    color: #38a169;
-}
-
-/* SmythOS Branding Colors */
-.smythos-primary {
-    color: #3182ce;
-}
-
-.smythos-success {
-    color: #38a169;
-}
-
-.smythos-warning {
-    color: #d69e2e;
-}
-
-.smythos-error {
-    color: #e53e3e;
+@media (max-width: 480px) {
+    .analytics-panel {
+        right: 5px;
+        top: 70px;
+        min-width: 220px;
+        padding: 0.8rem;
+    }
+    
+    .metric-label, .metric-value {
+        font-size: 0.75rem;
+    }
 }

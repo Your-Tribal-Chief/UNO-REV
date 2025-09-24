@@ -22,8 +22,10 @@
 // SmythOS Flow Integration for HackTheAI Competition
 class SmythOSAI {
     constructor() {
-        this.apiEndpoint = 'https://api.smythos.com/v1/flows'; // Simulated endpoint
-        this.flowId = 'uno-ai-master-flow-001';
+        // REAL SmythOS Flow Builder Integration
+        this.apiEndpoint = 'https://api.smythos.com/v1/flows';
+        this.flowId = 'uno-ai-strategic-analysis'; // Real SmythOS Flow ID
+        this.apiKey = 'smythos_api_key_placeholder'; // Replace with actual API key
         this.sessionId = this.generateSessionId();
         this.gameAnalytics = {
             moves: [],
@@ -37,6 +39,10 @@ class SmythOSAI {
         };
         this.aiPersonality = 'balanced'; // balanced, aggressive, defensive
         this.learningEnabled = true;
+        this.smythosConnected = false; // Track SmythOS connection status
+        
+        // Initialize SmythOS connection
+        this.initializeSmythOSConnection();
     }
 
     generateSessionId() {
@@ -44,34 +50,66 @@ class SmythOSAI {
     }
 
     async analyzeGameState(gameState) {
-        // Simulate SmythOS flow analysis
-        console.log('🧠 SmythOS: Analyzing game state...', gameState);
+        console.log('🧠 SmythOS: Sending real API request for game analysis...', gameState);
         
-        const analysis = {
-            optimalMove: null,
-            winProbability: 0,
-            riskAssessment: 'low',
-            strategicInsight: '',
-            confidenceLevel: 0
-        };
+        try {
+            // REAL SmythOS Flow Builder API Call
+            const response = await fetch(`${this.apiEndpoint}/${this.flowId}/execute`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'X-Session-ID': this.sessionId
+                },
+                body: JSON.stringify({
+                    input: {
+                        gameState: gameState,
+                        aiPersonality: this.aiPersonality,
+                        gameHistory: this.gameAnalytics.moves.slice(-5), // Last 5 moves
+                        sessionId: this.sessionId
+                    },
+                    flowParams: {
+                        analysisType: 'strategic_decision',
+                        includePersonality: true,
+                        calculateRisk: true
+                    }
+                })
+            });
 
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 100));
+            if (!response.ok) {
+                throw new Error(`SmythOS API Error: ${response.status}`);
+            }
 
-        // Calculate win probability based on hand composition
-        const handStrength = this.calculateHandStrength(gameState.aiHand);
-        const opponentThreat = this.assessOpponentThreat(gameState.playerHandSize);
-        
-        analysis.winProbability = Math.min(0.95, handStrength * 0.6 + (1 - opponentThreat) * 0.4);
-        analysis.confidenceLevel = Math.random() * 0.3 + 0.7; // 70-100%
+            const flowResult = await response.json();
+            console.log('✅ SmythOS Flow Response:', flowResult);
 
-        this.gameAnalytics.predictions.push({
-            timestamp: Date.now(),
-            gameState: gameState,
-            analysis: analysis
-        });
+            // Parse SmythOS Flow Builder response
+            const analysis = {
+                optimalMove: flowResult.data.recommendedCard || null,
+                winProbability: flowResult.data.winProbability || 0.5,
+                riskAssessment: flowResult.data.riskLevel || 'medium',
+                strategicInsight: flowResult.data.insight || 'Standard play recommended',
+                confidenceLevel: flowResult.data.confidence || 0.8,
+                smythosFlowId: flowResult.flowExecutionId
+            };
 
-        return analysis;
+            // Store prediction for learning
+            this.gameAnalytics.predictions.push({
+                timestamp: Date.now(),
+                gameState: gameState,
+                analysis: analysis,
+                smythosResponse: flowResult
+            });
+
+            return analysis;
+
+        } catch (error) {
+            console.error('❌ SmythOS API Error:', error);
+            
+            // Fallback to local analysis if SmythOS is unavailable
+            console.log('🔄 Falling back to local analysis...');
+            return this.fallbackAnalysis(gameState);
+        }
     }
 
     calculateHandStrength(hand) {
@@ -97,29 +135,72 @@ class SmythOSAI {
     }
 
     async adaptStrategy(gameResult) {
-        console.log('🎯 SmythOS: Adapting strategy based on game result...', gameResult);
+        console.log('🎯 SmythOS: Sending adaptation request...', gameResult);
         
-        this.gameAnalytics.adaptations.push({
-            timestamp: Date.now(),
-            result: gameResult,
-            previousPersonality: this.aiPersonality
-        });
+        try {
+            // REAL SmythOS Flow for Strategy Adaptation
+            const response = await fetch(`${this.apiEndpoint}/${this.flowId}/adapt`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'X-Session-ID': this.sessionId
+                },
+                body: JSON.stringify({
+                    gameResult: gameResult,
+                    currentPersonality: this.aiPersonality,
+                    gameHistory: this.gameAnalytics.moves,
+                    performanceMetrics: this.gameAnalytics.performance,
+                    sessionId: this.sessionId
+                })
+            });
 
-        // Simulate strategy adaptation
-        if (gameResult.winner === 'player') {
-            // If AI lost, try different personality
-            const personalities = ['aggressive', 'defensive', 'balanced'];
-            this.aiPersonality = personalities[Math.floor(Math.random() * personalities.length)];
+            if (!response.ok) {
+                throw new Error(`SmythOS Adaptation API Error: ${response.status}`);
+            }
+
+            const adaptationResult = await response.json();
+            console.log('✅ SmythOS Adaptation Response:', adaptationResult);
+
+            // Apply SmythOS-recommended personality change
+            this.aiPersonality = adaptationResult.data.recommendedPersonality || this.aiPersonality;
+
+            // Store adaptation data
+            this.gameAnalytics.adaptations.push({
+                timestamp: Date.now(),
+                result: gameResult,
+                previousPersonality: this.aiPersonality,
+                smythosRecommendation: adaptationResult
+            });
+
+            // Update performance metrics
+            this.updatePerformanceMetrics(gameResult);
+            
+            return {
+                newPersonality: this.aiPersonality,
+                adaptationReason: adaptationResult.data.reasoning || 'SmythOS adaptation',
+                confidence: adaptationResult.data.confidence || 0.8,
+                smythosFlowId: adaptationResult.flowExecutionId
+            };
+
+        } catch (error) {
+            console.error('❌ SmythOS Adaptation Error:', error);
+            
+            // Fallback adaptation logic
+            if (gameResult.winner === 'player') {
+                const personalities = ['aggressive', 'defensive', 'balanced'];
+                this.aiPersonality = personalities[Math.floor(Math.random() * personalities.length)];
+            }
+
+            this.updatePerformanceMetrics(gameResult);
+            
+            return {
+                newPersonality: this.aiPersonality,
+                adaptationReason: 'fallback_adaptation',
+                confidence: 0.6,
+                isFallback: true
+            };
         }
-
-        // Update performance metrics
-        this.updatePerformanceMetrics(gameResult);
-        
-        return {
-            newPersonality: this.aiPersonality,
-            adaptationReason: gameResult.winner === 'player' ? 'loss_adaptation' : 'performance_optimization',
-            confidence: Math.random() * 0.2 + 0.8
-        };
     }
 
     updatePerformanceMetrics(gameResult) {
@@ -161,11 +242,37 @@ class SmythOSAI {
         return traits[this.aiPersonality];
     }
 
-    logMove(move) {
-        this.gameAnalytics.moves.push({
+    async logMove(move) {
+        const moveData = {
             timestamp: Date.now(),
             ...move
-        });
+        };
+        
+        this.gameAnalytics.moves.push(moveData);
+
+        // Send move data to SmythOS for learning (fire-and-forget)
+        if (this.smythosConnected && this.learningEnabled) {
+            try {
+                fetch(`${this.apiEndpoint}/${this.flowId}/learn`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.apiKey}`,
+                        'X-Session-ID': this.sessionId
+                    },
+                    body: JSON.stringify({
+                        moveData: moveData,
+                        gameState: move.gameState,
+                        outcome: move.analysis,
+                        sessionId: this.sessionId
+                    })
+                }).catch(error => {
+                    console.warn('⚠️ SmythOS learning data failed to send:', error);
+                });
+            } catch (error) {
+                console.warn('⚠️ Error sending learning data to SmythOS:', error);
+            }
+        }
     }
 
     getAnalyticsSummary() {
@@ -177,6 +284,103 @@ class SmythOSAI {
             currentPersonality: this.aiPersonality,
             sessionId: this.sessionId
         };
+    }
+
+    async initializeSmythOSConnection() {
+        console.log('🚀 Initializing SmythOS Flow Builder connection...');
+        
+        try {
+            // Test SmythOS API connection
+            const response = await fetch(`${this.apiEndpoint}/${this.flowId}/status`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const status = await response.json();
+                console.log('✅ SmythOS Flow is active:', status);
+                this.smythosConnected = true;
+            } else {
+                throw new Error(`Flow not accessible: ${response.status}`);
+            }
+        } catch (error) {
+            console.warn('⚠️ SmythOS connection failed, using fallback mode:', error);
+            this.smythosConnected = false;
+        }
+    }
+
+    fallbackAnalysis(gameState) {
+        console.log('🔄 Using fallback AI analysis...');
+        
+        // Local analysis as fallback when SmythOS is unavailable
+        const handStrength = this.calculateHandStrength(gameState.aiHand);
+        const opponentThreat = this.assessOpponentThreat(gameState.playerHandSize);
+        
+        return {
+            optimalMove: null,
+            winProbability: Math.min(0.95, handStrength * 0.6 + (1 - opponentThreat) * 0.4),
+            riskAssessment: handStrength > 0.7 ? 'low' : opponentThreat > 0.7 ? 'high' : 'medium',
+            strategicInsight: 'Fallback analysis - SmythOS unavailable',
+            confidenceLevel: 0.6, // Lower confidence for fallback
+            isFallback: true
+        };
+    }
+
+    async getCardRecommendation(playableCards, gameState, analysis) {
+        console.log('🎯 Requesting SmythOS card recommendation...');
+        
+        try {
+            const response = await fetch(`${this.apiEndpoint}/${this.flowId}/recommend`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'X-Session-ID': this.sessionId
+                },
+                body: JSON.stringify({
+                    playableCards: playableCards,
+                    gameState: gameState,
+                    currentAnalysis: analysis,
+                    aiPersonality: this.aiPersonality,
+                    difficulty: 'hard', // Always use hard for SmythOS
+                    sessionId: this.sessionId
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`SmythOS Recommendation API Error: ${response.status}`);
+            }
+
+            const recommendation = await response.json();
+            console.log('✅ SmythOS Card Recommendation:', recommendation);
+
+            // Find the recommended card in playable cards
+            const recommendedCard = playableCards.find(card => 
+                card.value === recommendation.data.cardValue && 
+                card.color === recommendation.data.cardColor
+            ) || playableCards[0]; // Fallback to first card
+
+            return {
+                card: recommendedCard,
+                reasoning: recommendation.data.reasoning || 'SmythOS strategic choice',
+                confidence: recommendation.data.confidence || 0.8,
+                smythosFlowId: recommendation.flowExecutionId
+            };
+
+        } catch (error) {
+            console.error('❌ SmythOS Card Recommendation Error:', error);
+            
+            // Return first playable card as fallback
+            return {
+                card: playableCards[0],
+                reasoning: 'Fallback selection - SmythOS unavailable',
+                confidence: 0.5,
+                isFallback: true
+            };
+        }
     }
 }
 
@@ -752,12 +956,44 @@ class UNOGame {
     }
     
     async aiChooseCardWithSmythOS(playableCards, analysis) {
-        // Enhanced AI with SmythOS integration
+        console.log('🤖 AI using SmythOS Flow Builder for card selection...');
+        
+        // Create current game state for SmythOS
+        const gameState = {
+            aiHand: this.aiHand,
+            playerHandSize: this.playerHand.length,
+            currentCard: this.currentCard,
+            currentColor: this.currentColor,
+            drawStack: this.drawStack,
+            difficulty: this.difficulty
+        };
+
+        try {
+            // Get SmythOS Flow Builder recommendation
+            const recommendation = await this.smythosAI.getCardRecommendation(playableCards, gameState, analysis);
+            
+            if (!recommendation.isFallback) {
+                console.log('✅ Using SmythOS Flow recommendation:', recommendation);
+                
+                // Log the SmythOS-powered decision
+                await this.smythosAI.logMove({
+                    type: 'smythos_card_selection',
+                    recommendation: recommendation,
+                    analysis: analysis,
+                    gameState: gameState
+                });
+                
+                return recommendation.card;
+            }
+        } catch (error) {
+            console.error('❌ SmythOS card selection failed:', error);
+        }
+
+        // Fallback to traditional strategy if SmythOS fails
+        console.log('🔄 Using fallback strategy...');
         const personality = this.smythosAI.getPersonalityTraits();
         
-        // Combine traditional strategy with SmythOS insights
         let strategicChoice;
-        
         switch (this.difficulty) {
             case 'easy':
                 strategicChoice = this.aiEasyStrategyEnhanced(playableCards, personality);
@@ -1201,24 +1437,60 @@ class UNOGame {
         const adaptationsEl = document.getElementById('total-adaptations');
         const sessionIdEl = document.getElementById('session-id');
         
-        if (winProbEl) winProbEl.textContent = `${(analysis.winProbability * 100).toFixed(1)}%`;
+        if (winProbEl) {
+            winProbEl.textContent = `${(analysis.winProbability * 100).toFixed(1)}%`;
+            // Add indicator if using SmythOS vs fallback
+            if (analysis.isFallback) {
+                winProbEl.title = 'Using fallback analysis - SmythOS unavailable';
+                winProbEl.style.color = '#ff9500';
+            } else {
+                winProbEl.title = 'SmythOS Flow Builder analysis';
+                winProbEl.style.color = '#2ed573';
+            }
+        }
+        
         if (personalityEl) {
             personalityEl.textContent = this.smythosAI.aiPersonality.charAt(0).toUpperCase() + 
                                        this.smythosAI.aiPersonality.slice(1);
         }
-        if (confidenceEl) confidenceEl.textContent = `${(analysis.confidenceLevel * 100).toFixed(1)}%`;
+        
+        if (confidenceEl) {
+            confidenceEl.textContent = `${(analysis.confidenceLevel * 100).toFixed(1)}%`;
+            // Show SmythOS connection status
+            if (this.smythosAI.smythosConnected) {
+                confidenceEl.style.color = '#2ed573';
+                confidenceEl.title = '✅ SmythOS Flow Builder connected';
+            } else {
+                confidenceEl.style.color = '#ff9500';
+                confidenceEl.title = '⚠️ Using fallback mode - SmythOS disconnected';
+            }
+        }
         
         const summary = this.smythosAI.getAnalyticsSummary();
         if (performanceEl) performanceEl.textContent = `${(summary.performance.winRate * 100).toFixed(1)}%`;
         if (predictionsEl) predictionsEl.textContent = summary.predictions.toString();
         if (adaptationsEl) adaptationsEl.textContent = summary.adaptations.toString();
-        if (sessionIdEl) sessionIdEl.textContent = summary.sessionId.substring(0, 12) + '...';
+        if (sessionIdEl) {
+            sessionIdEl.textContent = summary.sessionId.substring(0, 12) + '...';
+            sessionIdEl.title = `SmythOS Session: ${summary.sessionId}`;
+        }
         
-        // Add visual indicator for high confidence predictions
+        // Add visual indicator for SmythOS vs fallback mode
         const analyticsPanel = document.getElementById('analytics-panel');
-        if (analyticsPanel && analysis.confidenceLevel > 0.9) {
-            analyticsPanel.classList.add('high-confidence');
-            setTimeout(() => analyticsPanel.classList.remove('high-confidence'), 2000);
+        if (analyticsPanel) {
+            if (!analysis.isFallback && analysis.confidenceLevel > 0.9) {
+                analyticsPanel.classList.add('high-confidence');
+                setTimeout(() => analyticsPanel.classList.remove('high-confidence'), 2000);
+            }
+            
+            // Update panel based on SmythOS connection
+            if (this.smythosAI.smythosConnected) {
+                analyticsPanel.classList.remove('fallback-mode');
+                analyticsPanel.classList.add('smythos-connected');
+            } else {
+                analyticsPanel.classList.add('fallback-mode');
+                analyticsPanel.classList.remove('smythos-connected');
+            }
         }
     }
     
