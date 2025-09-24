@@ -475,6 +475,7 @@ class UNOGame {
                 } else {
                     console.log('AI passes turn after drawing');
                     this.currentPlayer = 'player';
+                    this.aiTurnInProgress = false; // Reset AI turn lock when passing
                     this.updateUI();
                 }
             }
@@ -549,9 +550,11 @@ class UNOGame {
                 
                 // Don't switch players - current player continues their turn
                 if (player === 'ai') {
-                    // AI continues their turn after a brief delay
+                    // Reset AI turn lock and schedule next turn
+                    this.aiTurnInProgress = false;
                     setTimeout(() => {
                         if (this.currentPlayer === 'ai') { // Safety check to prevent conflicts
+                            console.log('🔄 AI gets another turn after Skip');
                             this.aiTurn();
                         }
                     }, 1500);
@@ -572,9 +575,11 @@ class UNOGame {
                 
                 // Don't switch players - current player continues their turn
                 if (player === 'ai') {
-                    // AI continues their turn after a brief delay
+                    // Reset AI turn lock and schedule next turn
+                    this.aiTurnInProgress = false;
                     setTimeout(() => {
                         if (this.currentPlayer === 'ai') { // Safety check to prevent conflicts
+                            console.log('🔄 AI gets another turn after Reverse');
                             this.aiTurn();
                         }
                     }, 1500);
@@ -711,6 +716,7 @@ class UNOGame {
                 this.drawStack = 0;
                 this.drawStackType = null;
                 this.currentPlayer = 'player';
+                this.aiTurnInProgress = false; // Reset AI turn lock when switching to player
                 this.updateUI();
             }
             return;
